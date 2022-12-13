@@ -12,4 +12,15 @@ dotenv = "0.15.0"
 serde = { version = "1.0.137", features = ["derive"] }
 tokio-pg-mapper = "0.2.0"
 tokio-pg-mapper-derive = "0.2.0"
-tokio-postgres = "0.7.6"
+tokio-postgres = { version = "0.7.7", features = ["with-uuid-1","with-time-0_3"] }
+protobuf = {version = "3.2.0", fatures = ["with-serde"] }
+time = { version = "0.3.17", features = ["serde"] }
+
+[dependencies.uuid]
+version = "1.2.2"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+    "serde",
+]

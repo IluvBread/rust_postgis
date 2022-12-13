@@ -11,21 +11,15 @@ pub async fn add_user(
 ) -> Result<HttpResponse, Error> 
 {
     let user_info: models::User = user.into_inner();
-
     let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
-
     let new_user = db::add_user(&client, user_info).await?;
-
     Ok(HttpResponse::Ok().json(new_user))
 }
 
 pub async fn get_users(db_pool: web::Data<Pool>) -> Result<HttpResponse, Error> 
 {
-
     let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
-
     let user_vec = db::get_users(&client).await?;
-
     Ok(HttpResponse::Ok().json(user_vec))
 }
 
@@ -37,7 +31,6 @@ pub async fn test(_db_pool: web::Data<Pool>) -> Result<HttpResponse, Error>
 
 pub async fn add_location(db_pool: web::Data<Pool>, input: web::Json<models::AddLocationParam>) -> Result<HttpResponse, Error> {
     let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
-
     let response = db::add_location(&client, &input).await;
     match response{
         Ok(()) => return Ok(HttpResponse::Accepted().finish()),
@@ -45,12 +38,28 @@ pub async fn add_location(db_pool: web::Data<Pool>, input: web::Json<models::Add
     }
 }
 
+pub async fn add_timestamp_to_location(db_pool: web::Data<Pool>, input: web::Json<models::AddTimeslotToLocationParam>) -> Result<HttpResponse, Error> {
+    let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
+    let response = db::add_timeslot_to_location(&client, &input).await;
+    match response{
+        Ok(resp) => return Ok(HttpResponse::Ok().json(resp)),
+        Err(e) => return Err(actix_web::error::ErrorBadGateway(e)),
+    }
+}
+
 pub async fn get_locations(db_pool: web::Data<Pool>, input: web::Json<models::GetLocationParam>) -> Result<HttpResponse, Error> 
 {
-
     let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
-
     let locations = db::get_locations(&client,&input).await?;
-
     Ok(HttpResponse::Ok().json(locations))
+}
+
+pub async fn delete_timeslot(db_pool: web::Data<Pool>, input: web::Json<models::DeleteTimeslotRequest>) -> Result<HttpResponse, Error> 
+{
+    let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
+    let locations = db::delete_timeslot(&client,&input).await;
+    match locations{
+        Ok(()) => return Ok(HttpResponse::Ok().finish()),
+        Err(e) => return Ok(HttpResponse::BadRequest().finish())
+    }
 }
