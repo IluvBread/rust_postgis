@@ -2,8 +2,10 @@
 use actix_web::{web, Error, HttpResponse};
 use deadpool_postgres::{Client, Pool};
 
-
-use crate::*;
+use super::models;
+use crate::db;
+use crate::errors;
+use crate::repos::locations;
 
 pub async fn add_user(
     user: web::Json<models::User>,
@@ -54,12 +56,19 @@ pub async fn get_locations(db_pool: web::Data<Pool>, input: web::Json<models::Ge
     Ok(HttpResponse::Ok().json(locations))
 }
 
+pub async fn get_locations_by_filters(db_pool: web::Data<Pool>, input: web::Json<models::GetFilteredLocationParam>) -> Result<HttpResponse, Error> 
+{
+    let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
+    let locations = locations::get_filtered_locations(&client,&input).await?;
+    Ok(HttpResponse::Ok().json(locations))
+}
+
 pub async fn delete_timeslot(db_pool: web::Data<Pool>, input: web::Json<models::DeleteTimeslotRequest>) -> Result<HttpResponse, Error> 
 {
     let client: Client = db_pool.get().await.map_err(errors::MyError::PoolError)?;
     let locations = db::delete_timeslot(&client,&input).await;
     match locations{
         Ok(()) => return Ok(HttpResponse::Ok().finish()),
-        Err(e) => return Ok(HttpResponse::BadRequest().finish())
+        Err(_) => return Ok(HttpResponse::BadRequest().finish())
     }
 }

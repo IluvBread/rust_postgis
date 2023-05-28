@@ -1,4 +1,3 @@
-use protobuf::well_known_types::timestamp::Timestamp;
 use serde::{Deserialize, Serialize};
 use tokio_pg_mapper_derive::PostgresMapper;
 use time::OffsetDateTime;
@@ -55,6 +54,13 @@ pub struct DeleteTimeslotRequest{
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetLocationParam{
     pub boundingbox: BoundingBox,
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetFilteredLocationParam{
+    pub boundingbox: BoundingBox,
+    pub name: Option<String>,
 }
 
 

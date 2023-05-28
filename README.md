@@ -9,3 +9,5 @@ curl -X POST http://127.0.0.1:8080/location/timeslot -H 'Content-Type: applicati
    "start_time": "2020-12-09T16:09:53+00:00",
    "end_time": "2020-12-09T16:09:53+00:00"
 }'
+
+curl -X DELETE http://127.0.0.1:8080/location/timeslot -H 'Content-Type: application/json' -d '{"timeslot_id":"049074f1-7927-48f0-b0ea-792c30335aa5"}'

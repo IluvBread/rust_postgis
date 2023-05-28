@@ -1,9 +1,9 @@
 use deadpool_postgres::Client;
-use time::OffsetDateTime;
 use tokio_pg_mapper::FromTokioPostgresRow;
 use uuid::Uuid;
 use std::str::FromStr;
 use crate::*;
+
 
 pub async fn add_user(client: &Client, user_info: models::User) -> Result<models::User, errors::MyError> {
     let _stmt = include_str!("../sql/add_user.sql");
@@ -117,4 +117,25 @@ pub async fn get_locations(client: &Client, input: &models::GetLocationParam) ->
     }
 }
 
-
+pub async fn get_timeslots_by_location_ids(client: &Client, input: &models::GetLocationParam) -> Result<Vec<models::Location>, errors::MyError>{
+    let _stmt = include_str!("../sql/location/get_locations.sql");
+    let stmt = client.prepare(&_stmt).await.unwrap();
+    
+    let query_result = client.query(&stmt,&[&input.boundingbox.west,&input.boundingbox.south,&input.boundingbox.east,&input.boundingbox.north]).await;
+    match query_result{
+        Ok(res) => {
+            println!("{}",res.len());
+            let x = res.iter().map(|row| models::Location{
+                name: row.get(0),
+                longitude: row.get(1),
+                latitude: row.get(2)}
+            )
+            .collect::<Vec<models::Location>>();
+            return Ok(x);
+            },
+        Err(e) => {
+            println!("Error getting locations");
+            return Err(errors::MyError::PGError(e));
+        }
+    }
+}

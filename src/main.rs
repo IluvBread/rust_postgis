@@ -8,6 +8,7 @@ mod models;
 mod config;
 mod errors;
 mod handlers;
+pub mod repos;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -31,11 +32,16 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/test")
                 .route(web::get().to(handlers::test)))
             .service(web::resource("/location")
-                .route(web::post().to(handlers::add_location))
-                .route(web::get().to(handlers::get_locations)))
+                .route(web::post().to(handlers::add_location)))
+            .service(web::resource("/locations")
+                .route(web::post().to(handlers::get_locations)))
+            .service(web::resource("/locations_filtered")
+                .route(web::post().to(handlers::get_locations_by_filters)))
             .service(web::resource("/location/timeslot")
                 .route(web::post().to(handlers::add_timestamp_to_location))
                 .route(web::delete().to(handlers::delete_timeslot)))
+            .service(web::resource("/location/timeslot")
+                .route(web::get().to(handlers::get_locations_by_filters)))
     })
     .bind(config.server_addr.clone())?
     .run();
